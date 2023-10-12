@@ -24,3 +24,20 @@ sudo apt-get install -y apt-transport-https --no-install-recommends
 echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 sudo apt-get update
 sudo apt-get install -y helm
+
+# Update and install Git
+sudo apt-get update
+sudo apt-get install -y git
+
+# Clone the sample repository
+git clone https://github.com/codefresh-contrib/helm-sample-app.git
+
+# Navigate to the cloned repository's directory
+cd helm-sample-app
+
+# Create a namespace for the application
+kubectl create namespace helm-sample-app
+
+# Deploy the application using Helm
+helm upgrade --install helm-sample-app ./chart --namespace helm-sample-app
+
