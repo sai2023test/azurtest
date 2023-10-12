@@ -1,0 +1,50 @@
+name: 'Terraform GitHub Actions'
+on:
+  push:
+    branches:
+    - main 
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Retrieve VM Admin Username
+      id: retrieve-vm-admin-username
+      uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: "KEY_VAULT_NAME"
+        secrets: 'admin-username'
+        azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Retrieve VM Admin Password
+      id: retrieve-vm-admin-password
+      uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: "KEY_VAULT_NAME"
+        secrets: 'admin-password'
+        azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan -var="admin_username=${{ steps.retrieve-vm-admin-username.outputs.admin-username }}" -var="admin_password=${{ steps.retrieve-vm-admin-password.outputs.admin-password }}"
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -var="admin_username=${{ steps.retrieve-vm-admin-username.outputs.admin-username }}" -var="admin_password=${{ steps.retrieve-vm-admin-password.outputs.admin-password }}"
+
+    - name: Azure Logout
+      run: az logout
