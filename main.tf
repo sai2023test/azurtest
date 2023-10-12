@@ -37,8 +37,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   name                = "myVM"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  size                = "Standard_B1ls" # this is one of the least expensive VM sizes
-
+  size                = "B1 Standard "
   network_interface_ids = [
     azurerm_network_interface.nic.id,
   ]
